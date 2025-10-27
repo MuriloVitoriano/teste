@@ -70,7 +70,7 @@
         <h1>Acesso ao Inventário</h1>
         <p>Insira a senha para continuar:</p>
         
-        <input type="password" id="passwordInput" placeholder="Senha de Acesso" maxlength="7" autofocus>
+        <input type="password" id="passwordInput" placeholder="Senha de Acesso" maxlength="7" autofocus aria-label="Senha de Acesso">
         
         <button onclick="verificarSenha()">Entrar</button>
         
@@ -78,40 +78,92 @@
     </div>
 
     <script>
-        // A senha correta que você especificou
+        // 🚨 IMPORTANTE: Certifique-se de que esta URL tenha o CORS configurado para 'https://murilovitoriano.github.io'
         const LAMBDA_URL = "https://ltoiu2maclh6qrlwdwfvtf3ema0pkukb.lambda-url.us-east-2.on.aws/";
+        
         const passwordInput = document.getElementById("passwordInput");
         const mensagemErro = document.getElementById("mensagemErro");
 
+        /**
+         * Envia a senha para a Lambda para verificação.
+         */
         async function verificarSenha() {
             const senhaDigitada = passwordInput.value;
-            const response = await fetch(LAMBDA_URL, {
-                method: 'POST', // Usamos POST para enviar dados
-                headers: {
-                    'Content-Type': 'application/json' // Informa que estamos enviando JSON
-                },
-                // Converte o objeto JavaScript em uma string JSON para o corpo da requisição
-                body: JSON.stringify({
-                    password: passwordInput
-                }) 
-            });  
-            const data = await response.json()
-            console.log(data)
+            // Limpa a mensagem de erro anterior ao iniciar
+            mensagemErro.style.visibility = "hidden";
+
+            // Se o campo estiver vazio, não faz a requisição
+            if (!senhaDigitada) {
+                exibirErro("Por favor, digite a senha.");
+                return;
+            }
+
+            const dadosParaEnviar = {
+                password: senhaDigitada // 🔑 CORREÇÃO: Envia o valor (a string) da senha
+            };
+
+            try {
+                // 1. Faz a requisição HTTP
+                const response = await fetch(LAMBDA_URL, {
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify(dadosParaEnviar) 
+                });  
+                
+                // 2. Verifica se houve erro HTTP (Status 4xx ou 5xx)
+                if (!response.ok) {
+                    throw new Error(`Erro de servidor: Status ${response.status}`);
+                }
+
+                // 3. Processa a resposta JSON da Lambda
+                const resultadoLambda = await response.json();
+                
+                console.log("Resposta da Lambda:", resultadoLambda);
+
+                // 4. Lógica de decisão (Baseada em um retorno JSON da Lambda)
+                // Espera-se que a Lambda retorne { "acesso": true } ou { "acesso": false }
+                if (resultadoLambda && resultadoLambda.acesso === true) {
+                    // Senha correta: redireciona
+                    window.location.href = "inventario.html";
+                } else {
+                    // Senha incorreta
+                    exibirErro("Senha incorreta. Acesso negado.");
+                }
+
+            } catch (error) {
+                // Lidar com falhas de rede, bloqueio de CORS, ou erros de parse JSON.
+                console.error("Erro na comunicação:", error);
+                
+                // Mensagem genérica de erro (O erro de CORS ocorre aqui se não for configurado)
+                exibirErro("Erro de conexão. Verifique o console do navegador ou a configuração CORS.");
+            }
         }
 
-        
-        // Permite usar a tecla Enter para tentar o login
+        /**
+         * Exibe a mensagem de erro e reseta o campo de senha.
+         */
+        function exibirErro(mensagem) {
+            mensagemErro.textContent = mensagem;
+            mensagemErro.style.visibility = "visible";
+            passwordInput.value = "";
+            passwordInput.focus();
+        }
+
+        // Adiciona um listener para permitir o login com a tecla Enter
         passwordInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
+                // Previne a submissão padrão do formulário (se houver)
+                event.preventDefault(); 
                 verificarSenha();
             }
         });
         
         // Garante que o campo de senha receba o foco ao carregar a página
         window.onload = () => {
-             passwordInput.focus();
+            passwordInput.focus();
         };
-
     </script>
 </body>
 </html>

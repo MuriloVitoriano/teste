@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Inventário por Centro de Custo</title>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+    <h1>Consulta de Inventário de Equipamentos</h1>
+
+    <div class="controls">
+        <div class="filter-group">
+            <label for="centroCustoSelect">Centro de Custo:</label>
+            <select id="centroCustoSelect">
+                <option value="">Carregando CCs...</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="buscaEquipamentoInput">Buscar Equipamento:</label>
+            <input type="text" id="buscaEquipamentoInput" placeholder="Ex: BOMBA, TESTE, COMPUTADOR">
+        </div>
+    </div>
+
+    <h2>Resultados</h2>
+    
+    <div class="table-container">
+        <table id="resultadoTable">
+            <thead>
+                <tr>
+                    <th>Centro de Custo</th>
+                    <th>Inventário</th>
+                    <th>Equipamento</th>
+                    <th>Área</th>
+                    <th>ID Inventário</th>
+                </tr>
+            </thead>
+            <tbody id="resultadoBody">
+                <tr><td colspan="5">Carregando índice de Centros de Custo...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

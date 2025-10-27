@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Restrito</title>
+    <style>
+        /* O CSS de login foi embutido aqui para garantir que carregue imediatamente */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
+        }
+
+        .login-box {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #mensagemErro {
+            color: red;
+            margin-top: 15px;
+            visibility: hidden; /* Escondido por padrão */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-box">
+        <h1>Acesso ao Inventário</h1>
+        <p>Insira a senha para continuar:</p>
+        
+        <input type="password" id="passwordInput" placeholder="Senha de Acesso" maxlength="7" autofocus>
+        
+        <button onclick="verificarSenha()">Entrar</button>
+        
+        <p id="mensagemErro">Senha incorreta. Tente novamente.</p>
+    </div>
+
+    <script>
+        // A senha correta que você especificou
+        const LAMBDA_URL = "https://ltoiu2maclh6qrlwdwfvtf3ema0pkukb.lambda-url.us-east-2.on.aws/";
+        const passwordInput = document.getElementById("passwordInput");
+        const mensagemErro = document.getElementById("mensagemErro");
+
+        async function verificarSenha() {
+            const senhaDigitada = passwordInput.value;
+            const response = await fetch(LAMBDA_URL, {
+                method: 'POST', // Usamos POST para enviar dados
+                headers: {
+                    'Content-Type': 'application/json' // Informa que estamos enviando JSON
+                },
+                // Converte o objeto JavaScript em uma string JSON para o corpo da requisição
+                body: JSON.stringify({
+                    password: passwordInput
+                }) 
+            });  
+            const data = await response.json()
+            console.log(data)
+        }
+
+        
+        // Permite usar a tecla Enter para tentar o login
+        passwordInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                verificarSenha();
+            }
+        });
+        
+        // Garante que o campo de senha receba o foco ao carregar a página
+        window.onload = () => {
+             passwordInput.focus();
+        };
+
+    </script>
+</body>
+</html>
